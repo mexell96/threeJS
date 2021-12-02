@@ -4,8 +4,8 @@ export default function createLight(scene) {
   const skyColor = 0xb1e1ff;
   const groundColor = 0xb97a20;
   const intensity = 1;
-  const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-  scene.add(light);
+  const light1 = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+  scene.add(light1);
 
   const color = 0xffffff;
   const light2 = new THREE.DirectionalLight(color, intensity);
