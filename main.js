@@ -51,11 +51,21 @@ function onPointerDown(event) {
     const intersect = intersects[0].object;
     if (intersect.name === "cube1") {
       //green
-      camera.position.x = 1700;
-      camera.position.y = 150;
-      camera.position.z = 0;
-      controls.target.set(1600, 150, 0);
       createRequest();
+      const position = {
+        x: camera.position.x,
+        y: camera.position.y,
+        z: camera.position.z,
+      };
+      let tween = new TWEEN.Tween(position);
+      tween.to({ x: 1600, y: 150, z: 0 }, 5000);
+      tween.easing(TWEEN.Easing.Quadratic.Out);
+      tween.onUpdate(() => {
+        camera.position.set(position.x, position.y, position.z);
+        controls.target.set(position.x + 1, position.y, position.z);
+        camera.lookAt(position.x + 1, position.y, position.z);
+      });
+      tween.start();
     }
     if (intersect.name === "cube2") {
       //orange
@@ -65,11 +75,16 @@ function onPointerDown(event) {
         z: camera.position.z,
       };
       let tween = new TWEEN.Tween(position);
-      tween.to({ x: -1400, y: 150, z: 0 }, 5000);
+      tween.to({ x: -1400, y: 150, z: 0 }, 1000);
       tween.easing(TWEEN.Easing.Quadratic.Out);
       tween.onUpdate(() => {
-        camera.position.set(position.x, position.y, position.z);
-        controls.target.set(position.x - 1, position.y, position.z);
+        camera.position.set(position.x, position.y, position.z + 0.00001);
+        controls.target.set(position.x, position.y, position.z);
+        if (position.x > -1000) {
+          camera.lookAt(position.x - 1, position.y, position.z - 0.00001);
+        } else {
+          camera.lookAt(position.x, position.y, position.z);
+        }
       });
       tween.start();
     }
@@ -80,12 +95,28 @@ function onPointerDown(event) {
         y: camera.position.y,
         z: camera.position.z,
       };
+      console.log("position arrow1", position);
       let tween = new TWEEN.Tween(position);
       tween.to({ x: 0, y: 150, z: 0 }, 5000);
       tween.easing(TWEEN.Easing.Quadratic.Out);
       tween.onUpdate(() => {
-        camera.position.set(position.x, position.y, position.z);
-        controls.target.set(position.x - 1, position.y, position.z);
+        if (position.x > 0) {
+          camera.position.set(position.x, position.y, position.z);
+          controls.target.set(position.x - 1, position.y, position.z);
+          // camera.lookAt(position.x - 1, position.y, position.z);
+          console.log("1111");
+        }
+        if (position.x == 0) {
+          camera.position.set(position.x, position.y, position.z);
+          controls.target.set(position.x - 1, position.y, position.z);
+          camera.lookAt(position.x - 1, position.y, position.z);
+          console.log("1111");
+        }
+        // if (position.x < 0) {
+        //   camera.position.set(position.x, position.y, position.z);
+        //   controls.target.set(1, position.y, position.z);
+        //   console.log("2222");
+        // }
       });
       tween.start();
     }
