@@ -13,14 +13,19 @@ import resizeRendererToDisplaySize from "./resizeRendererToDisplaySize.js";
 
 const objects = [];
 
-let cube1;
-let cube2;
+let cubeGreen;
+let cubeYellow;
+let cubeRed;
+let cubeBlue;
 
 const renderer = createRenderer();
 const scene = createScene();
 const camera = createCamera();
 const controls = createControls(camera, renderer);
 createLight(scene);
+
+const axesHelper = new THREE.AxesHelper(500);
+scene.add(axesHelper);
 
 render();
 
@@ -37,6 +42,64 @@ function render(time) {
 
 window.addEventListener("resize", () => windowResize(camera, renderer));
 
+function tweenJS(coordinates) {
+  function tweenLookAt() {
+    // backup original rotation
+    let startRotation = camera.quaternion.clone();
+    // final rotation (with lookAt)
+    if (camera.position.x - coordinates.x > 0) {
+      camera.lookAt(
+        camera.position.x - 1,
+        camera.position.y,
+        camera.position.z
+      );
+    }
+    if (camera.position.x - coordinates.x < 0) {
+      camera.lookAt(
+        camera.position.x + 1,
+        camera.position.y,
+        camera.position.z
+      );
+    }
+    let endRotation = camera.quaternion.clone();
+    // revert to original rotation
+    camera.quaternion.copy(startRotation);
+    return new TWEEN.Tween(camera.quaternion).to(endRotation, 500);
+  }
+  let tweenlook = tweenLookAt();
+
+  function tweenMove() {
+    return new TWEEN.Tween(camera.position)
+      .to(coordinates, 3000)
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .onUpdate(() => {
+        camera.position.set(
+          camera.position.x,
+          camera.position.y,
+          camera.position.z
+        );
+        if (camera.position.x - coordinates.x > 0) {
+          controls.target.set(
+            camera.position.x - 1,
+            camera.position.y,
+            camera.position.z
+          );
+        }
+        if (camera.position.x - coordinates.x < 0) {
+          controls.target.set(
+            camera.position.x + 1,
+            camera.position.y,
+            camera.position.z
+          );
+        }
+      });
+  }
+  let tweenM = tweenMove();
+
+  tweenlook.chain(tweenM);
+  tweenlook.start();
+}
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 window.addEventListener("dblclick", onPointerDown, false);
@@ -49,76 +112,21 @@ function onPointerDown(event) {
   console.log("intersects", intersects);
   if (intersects.length > 0) {
     const intersect = intersects[0].object;
-    if (intersect.name === "cube1") {
-      //green
+    if (intersect.name === "cubeGreen") {
       createRequest();
-      const position = {
-        x: camera.position.x,
-        y: camera.position.y,
-        z: camera.position.z,
-      };
-      let tween = new TWEEN.Tween(position);
-      tween.to({ x: 1600, y: 150, z: 0 }, 5000);
-      tween.easing(TWEEN.Easing.Quadratic.Out);
-      tween.onUpdate(() => {
-        camera.position.set(position.x, position.y, position.z);
-        controls.target.set(position.x + 1, position.y, position.z);
-        camera.lookAt(position.x + 1, position.y, position.z);
-      });
-      tween.start();
+      tweenJS({ x: 1600, y: 150, z: 0 });
     }
-    if (intersect.name === "cube2") {
-      //orange
-      const position = {
-        x: camera.position.x,
-        y: camera.position.y,
-        z: camera.position.z,
-      };
-      let tween = new TWEEN.Tween(position);
-      tween.to({ x: -1400, y: 150, z: 0 }, 1000);
-      tween.easing(TWEEN.Easing.Quadratic.Out);
-      tween.onUpdate(() => {
-        camera.position.set(position.x, position.y, position.z + 0.00001);
-        controls.target.set(position.x, position.y, position.z);
-        if (position.x > -1000) {
-          camera.lookAt(position.x - 1, position.y, position.z - 0.00001);
-        } else {
-          camera.lookAt(position.x, position.y, position.z);
-        }
-      });
-      tween.start();
+    if (intersect.name === "cubeYellow") {
+      tweenJS({ x: -1400, y: 150, z: 0 });
     }
     if (intersect.name === "arrow1") {
-      //arrow
-      const position = {
-        x: camera.position.x,
-        y: camera.position.y,
-        z: camera.position.z,
-      };
-      console.log("position arrow1", position);
-      let tween = new TWEEN.Tween(position);
-      tween.to({ x: 0, y: 150, z: 0 }, 5000);
-      tween.easing(TWEEN.Easing.Quadratic.Out);
-      tween.onUpdate(() => {
-        if (position.x > 0) {
-          camera.position.set(position.x, position.y, position.z);
-          controls.target.set(position.x - 1, position.y, position.z);
-          // camera.lookAt(position.x - 1, position.y, position.z);
-          console.log("1111");
-        }
-        if (position.x == 0) {
-          camera.position.set(position.x, position.y, position.z);
-          controls.target.set(position.x - 1, position.y, position.z);
-          camera.lookAt(position.x - 1, position.y, position.z);
-          console.log("1111");
-        }
-        // if (position.x < 0) {
-        //   camera.position.set(position.x, position.y, position.z);
-        //   controls.target.set(1, position.y, position.z);
-        //   console.log("2222");
-        // }
-      });
-      tween.start();
+      tweenJS({ x: 0, y: 150, z: 0 });
+    }
+    if (intersect.name === "cubeRed") {
+      tweenJS({ x: -1400, y: 150, z: -1000 });
+    }
+    if (intersect.name === "cubeBlue") {
+      tweenJS({ x: -1400, y: 150, z: 1000 });
     }
     controls.update();
   }
@@ -133,7 +141,7 @@ function onPointerDown(event) {
     gltf.scene.position.z = 0;
     scene.add(gltf.scene);
 
-    cube1 = createCube({
+    cubeGreen = createCube({
       width: 2,
       height: 1,
       depth: 2,
@@ -141,9 +149,9 @@ function onPointerDown(event) {
       x: 16,
       y: 0,
       z: 0,
-      name: "cube1",
+      name: "cubeGreen",
     });
-    cube2 = createCube({
+    cubeYellow = createCube({
       width: 2,
       height: 1,
       depth: 2,
@@ -151,12 +159,32 @@ function onPointerDown(event) {
       x: -14,
       y: 0,
       z: 0,
-      name: "cube2",
+      name: "cubeYellow",
+    });
+    cubeRed = createCube({
+      width: 2,
+      height: 1,
+      depth: 2,
+      color: 0xff1100,
+      x: -14,
+      y: 0,
+      z: -10,
+      name: "cubeRed",
+    });
+    cubeBlue = createCube({
+      width: 2,
+      height: 1,
+      depth: 2,
+      color: 0x1b2ba5,
+      x: -14,
+      y: 0,
+      z: 10,
+      name: "cubeBlue",
     });
     const mesh = createPolyhedron();
 
-    gltf.scene.add(cube1, cube2, mesh);
-    objects.push(cube1, cube2);
+    gltf.scene.add(cubeGreen, cubeYellow, cubeRed, cubeBlue, mesh);
+    objects.push(cubeGreen, cubeYellow, cubeRed, cubeBlue);
 
     controls.update();
   });

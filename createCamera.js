@@ -7,7 +7,7 @@ export default function createCamera() {
     1,
     30000
   );
-  camera.position.x = 1700;
+  camera.position.x = 1610;
   camera.position.y = 150;
   camera.position.z = 0;
   return camera;
