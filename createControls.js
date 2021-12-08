@@ -2,7 +2,7 @@ import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources
 
 export default function createControls(camera, renderer) {
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableZoom = true;
+  controls.enableZoom = false;
   controls.enablePan = false;
   controls.enableDamping = true;
   controls.rotateSpeed = 0.25;
