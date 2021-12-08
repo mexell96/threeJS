@@ -99,8 +99,9 @@ function tweenJS(coordinates) {
   let tweenLook = tweenLookAt();
 
   function tweenMove() {
+    let timeMoving = max;
     return new TWEEN.Tween(camera.position)
-      .to(coordinates, 3000)
+      .to(coordinates, timeMoving)
       .easing(TWEEN.Easing.Quadratic.Out)
       .onComplete((obj) => {
         camera.position.set(obj.x, obj.y, obj.z);
