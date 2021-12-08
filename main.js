@@ -14,9 +14,13 @@ import resizeRendererToDisplaySize from "./resizeRendererToDisplaySize.js";
 const objects = [];
 
 let cubeGreen;
+let cubeLightGreen;
 let cubeYellow;
 let cubeRed;
 let cubeBlue;
+let cubeDarkMagenta;
+let cameraPositionCopy;
+let max;
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -43,61 +47,104 @@ function render(time) {
 window.addEventListener("resize", () => windowResize(camera, renderer));
 
 function tweenJS(coordinates) {
+  cameraPositionCopy = camera.position.clone();
+  let positionX = Math.abs(cameraPositionCopy.x - coordinates.x);
+  let positionY = Math.abs(cameraPositionCopy.y - coordinates.y);
+  let positionZ = Math.abs(cameraPositionCopy.z - coordinates.z);
+  max = Math.max(positionX, positionY, positionZ);
+
   function tweenLookAt() {
     // backup original rotation
     let startRotation = camera.quaternion.clone();
     // final rotation (with lookAt)
-    if (camera.position.x - coordinates.x > 0) {
-      camera.lookAt(
-        camera.position.x - 1,
-        camera.position.y,
-        camera.position.z
-      );
+    if (max === positionX) {
+      if (coordinates.x > cameraPositionCopy.x) {
+        camera.lookAt(
+          camera.position.x + 1,
+          camera.position.y,
+          camera.position.z
+        );
+      }
+      if (coordinates.x < cameraPositionCopy.x) {
+        camera.lookAt(
+          camera.position.x - 1,
+          camera.position.y,
+          camera.position.z
+        );
+      }
     }
-    if (camera.position.x - coordinates.x < 0) {
-      camera.lookAt(
-        camera.position.x + 1,
-        camera.position.y,
-        camera.position.z
-      );
+    if (max === positionZ) {
+      if (coordinates.z > cameraPositionCopy.z) {
+        camera.lookAt(
+          camera.position.x,
+          camera.position.y,
+          camera.position.z + 1
+        );
+      }
+      if (coordinates.z < cameraPositionCopy.z) {
+        camera.lookAt(
+          camera.position.x,
+          camera.position.y,
+          camera.position.z - 1
+        );
+      }
     }
+
     let endRotation = camera.quaternion.clone();
     // revert to original rotation
     camera.quaternion.copy(startRotation);
     return new TWEEN.Tween(camera.quaternion).to(endRotation, 500);
   }
-  let tweenlook = tweenLookAt();
+
+  let tweenLook = tweenLookAt();
 
   function tweenMove() {
     return new TWEEN.Tween(camera.position)
       .to(coordinates, 3000)
       .easing(TWEEN.Easing.Quadratic.Out)
-      .onUpdate(() => {
-        camera.position.set(
-          camera.position.x,
-          camera.position.y,
-          camera.position.z
-        );
-        if (camera.position.x - coordinates.x > 0) {
-          controls.target.set(
-            camera.position.x - 1,
-            camera.position.y,
-            camera.position.z
-          );
+      .onComplete((obj) => {
+        camera.position.set(obj.x, obj.y, obj.z);
+        if (max === positionX) {
+          if (coordinates.x > cameraPositionCopy.x) {
+            controls.target.set(
+              camera.position.x + 1,
+              camera.position.y,
+              camera.position.z
+            );
+          }
+          if (coordinates.x < cameraPositionCopy.x) {
+            controls.target.set(
+              camera.position.x - 1,
+              camera.position.y,
+              camera.position.z
+            );
+          }
         }
-        if (camera.position.x - coordinates.x < 0) {
-          controls.target.set(
-            camera.position.x + 1,
-            camera.position.y,
-            camera.position.z
-          );
+        if (max === positionZ) {
+          if (coordinates.z > cameraPositionCopy.z) {
+            controls.target.set(
+              camera.position.x,
+              camera.position.y,
+              camera.position.z + 1
+            );
+          }
+          if (coordinates.z < cameraPositionCopy.z) {
+            controls.target.set(
+              camera.position.x,
+              camera.position.y,
+              camera.position.z - 1
+            );
+          }
         }
       });
   }
+
   let tweenM = tweenMove();
 
-  tweenlook.chain(tweenM);
-  tweenlook.start();
+  // tweenLook.chain(tweenM);
+  // tweenLook.start();
+  tweenLook.start();
+  tweenM.start();
 }
 
 const raycaster = new THREE.Raycaster();
@@ -127,6 +174,12 @@ function onPointerDown(event) {
     }
     if (intersect.name === "cubeBlue") {
       tweenJS({ x: -1400, y: 150, z: 1000 });
+    }
+    if (intersect.name === "cubeDarkGreen") {
+      tweenJS({ x: -5500, y: 150, z: 200 });
+    }
+    if (intersect.name === "cubeDarkMagenta") {
+      tweenJS({ x: -1400, y: 150, z: 2000 });
     }
     controls.update();
   }
@@ -181,10 +234,45 @@ function onPointerDown(event) {
       z: 10,
       name: "cubeBlue",
     });
+    cubeLightGreen = createCube({
+      width: 2,
+      height: 1,
+      depth: 2,
+      color: 0x93c47d,
+      x: -55,
+      y: 0,
+      z: 2,
+      name: "cubeDarkGreen",
+    });
+    cubeDarkMagenta = createCube({
+      width: 2,
+      height: 1,
+      depth: 2,
+      color: 0x741b47,
+      x: -14,
+      y: 0,
+      z: 20,
+      name: "cubeDarkMagenta",
+    });
     const mesh = createPolyhedron();
 
-    gltf.scene.add(cubeGreen, cubeYellow, cubeRed, cubeBlue, mesh);
-    objects.push(cubeGreen, cubeYellow, cubeRed, cubeBlue);
+    gltf.scene.add(
+      cubeGreen,
+      cubeYellow,
+      cubeRed,
+      cubeBlue,
+      cubeLightGreen,
+      cubeDarkMagenta,
+      mesh
+    );
+    objects.push(
+      cubeGreen,
+      cubeYellow,
+      cubeRed,
+      cubeBlue,
+      cubeLightGreen,
+      cubeDarkMagenta
+    );
 
     controls.update();
   });
