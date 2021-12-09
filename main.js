@@ -1,24 +1,14 @@
 import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js";
-import { GLTFLoader } from "https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/loaders/GLTFLoader.js";
 import createRenderer from "./createRenderer.js";
 import createScene from "./createScene.js";
 import createCamera from "./createCamera.js";
-import createCube from "./createCube.js";
-import createPolyhedron from "./createPolyhedron.js";
 import createLight from "./createLight.js";
 import createRequest from "./createRequest.js";
 import createControls from "./createControls.js";
 import windowResize from "./windowResize.js";
+import gltfLoader from "./gltfLoader.js";
 import resizeRendererToDisplaySize from "./resizeRendererToDisplaySize.js";
 
-const objects = [];
-
-let cubeGreen;
-let cubeLightGreen;
-let cubeYellow;
-let cubeRed;
-let cubeBlue;
-let cubeDarkMagenta;
 let cameraPositionCopy;
 let max;
 let parameters;
@@ -28,6 +18,7 @@ const renderer = createRenderer();
 const scene = createScene();
 const camera = createCamera();
 const controls = createControls(camera, renderer);
+const objects = gltfLoader(scene, controls);
 createLight(scene);
 
 const axesHelper = new THREE.AxesHelper(500);
@@ -155,7 +146,9 @@ function tweenJS(coordinates) {
     let endRotation = camera.quaternion.clone();
     // revert to original rotation
     camera.quaternion.copy(startRotation);
-    return new TWEEN.Tween(camera.quaternion).to(endRotation, 500);
+    return new TWEEN.Tween(camera.quaternion)
+      .easing(TWEEN.Easing.Quartic.Out)
+      .to(endRotation, max);
   }
 
   let tweenLook = tweenLookAt();
@@ -164,7 +157,7 @@ function tweenJS(coordinates) {
     let timeMoving = max;
     return new TWEEN.Tween(camera.position)
       .to(coordinates, timeMoving)
-      .easing(TWEEN.Easing.Quadratic.Out)
+      .easing(TWEEN.Easing.Linear.None)
       .onComplete((obj) => {
         camera.position.set(obj.x, obj.y, obj.z);
         if (max === positionX) {
@@ -247,110 +240,4 @@ function onPointerDown(event) {
     controls.update();
   }
   render();
-}
-{
-  const gltfLoader = new GLTFLoader();
-  gltfLoader.load("./untitled.gltf", (gltf) => {
-    gltf.scene.scale.multiplyScalar(100);
-    gltf.scene.position.x = 0;
-    gltf.scene.position.y = 0;
-    gltf.scene.position.z = 0;
-    scene.add(gltf.scene);
-
-    cubeGreen = createCube({
-      width: 2,
-      height: 1,
-      depth: 2,
-      color: 0x35591a,
-      x: 16,
-      y: 0,
-      z: 0,
-      name: "cubeGreen",
-    });
-    cubeYellow = createCube({
-      width: 2,
-      height: 1,
-      depth: 2,
-      color: 0xffce3b,
-      x: -14,
-      y: 0,
-      z: 0,
-      name: "cubeYellow",
-    });
-    cubeRed = createCube({
-      width: 2,
-      height: 1,
-      depth: 2,
-      color: 0xff1100,
-      x: -14,
-      y: 0,
-      z: -10,
-      name: "cubeRed",
-    });
-    cubeBlue = createCube({
-      width: 2,
-      height: 1,
-      depth: 2,
-      color: 0x1b2ba5,
-      x: -14,
-      y: 0,
-      z: 10,
-      name: "cubeBlue",
-    });
-    cubeLightGreen = createCube({
-      width: 2,
-      height: 1,
-      depth: 2,
-      color: 0x93c47d,
-      x: -55,
-      y: 0,
-      z: 2,
-      name: "cubeDarkGreen",
-    });
-    cubeDarkMagenta = createCube({
-      width: 2,
-      height: 1,
-      depth: 2,
-      color: 0x741b47,
-      x: -14,
-      y: 0,
-      z: 20,
-      name: "cubeDarkMagenta",
-    });
-    const mesh = createPolyhedron();
-
-    gltf.scene.add(
-      cubeGreen,
-      cubeYellow,
-      cubeRed,
-      cubeBlue,
-      cubeLightGreen,
-      cubeDarkMagenta,
-      mesh
-    );
-    objects.push(
-      cubeGreen,
-      cubeYellow,
-      cubeRed,
-      cubeBlue,
-      cubeLightGreen,
-      cubeDarkMagenta
-    );
-
-    controls.update();
-  });
-}
-{
-  const gltfLoader = new GLTFLoader();
-  gltfLoader.load("./arrow.gltf", (gltf) => {
-    gltf.scene.scale.multiplyScalar(100);
-    gltf.scene.position.x = 0;
-    gltf.scene.position.y = 0;
-    gltf.scene.position.z = 0;
-    scene.add(gltf.scene);
-
-    gltf.scene.children[2].name = "arrow1";
-    objects.push(gltf.scene.children[2]);
-    controls.update();
-  });
 }
