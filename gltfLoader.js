@@ -105,10 +105,23 @@ export default function gltfLoader(scene, controls) {
     gltf.scene.position.x = 0;
     gltf.scene.position.y = 0;
     gltf.scene.position.z = 0;
+    gltf.scene.name = "ARR";
     scene.add(gltf.scene);
+    gltf.scene.children[0].name = "arrow1";
+    objects.push(gltf.scene.children[0]);
+    controls.update();
+  });
 
-    gltf.scene.children[2].name = "arrow1";
-    objects.push(gltf.scene.children[2]);
+  const gltfLoader3 = new GLTFLoader();
+  gltfLoader3.load("./cylinder.gltf", (gltf) => {
+    gltf.scene.scale.multiplyScalar(100);
+    gltf.scene.position.x = -2800;
+    gltf.scene.position.y = 0;
+    gltf.scene.position.z = -300;
+    gltf.scene.name = "Cyl";
+    scene.add(gltf.scene);
+    gltf.scene.children[0].name = "cylinder";
+    objects.push(gltf.scene.children[0]);
     controls.update();
   });
 

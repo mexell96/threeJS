@@ -8,9 +8,14 @@ import createControls from "./createControls.js";
 import windowResize from "./windowResize.js";
 import gltfLoader from "./gltfLoader.js";
 import resizeRendererToDisplaySize from "./resizeRendererToDisplaySize.js";
+import Stats from "./stats.module.js";
 
 let cameraPositionCopy;
 let max;
+let stats;
+
+stats = new Stats();
+document.body.appendChild(stats.dom);
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -33,6 +38,7 @@ function render(time) {
   renderer.render(scene, camera);
   TWEEN.update(time);
   requestAnimationFrame(render);
+  stats.update();
 }
 
 window.addEventListener("resize", () => windowResize(camera, renderer));
@@ -141,6 +147,18 @@ function tweenJS(coordinates) {
   tweenM.start();
 }
 
+function changeVisible(name, boolean) {
+  console.log("scene.children ---", scene.children);
+  scene.children.map((child) => {
+    if (child.name === name) {
+      child.visible = boolean;
+      child.children.map((child) => {
+        child.visible = boolean;
+      });
+    }
+  });
+}
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 window.addEventListener("dblclick", onPointerDown, false);
@@ -156,11 +174,13 @@ function onPointerDown(event) {
     if (intersect.name === "cubeGreen") {
       createRequest();
       tweenJS({ x: 1600, y: 150, z: 0 });
+      changeVisible("ARR", true);
     }
     if (intersect.name === "cubeYellow") {
       tweenJS({ x: -1400, y: 150, z: 0 });
+      changeVisible("ARR", false);
     }
-    if (intersect.name === "arrow1") {
+    if (intersect.name === "arrow1" && intersect.visible === true) {
       tweenJS({ x: 0, y: 150, z: 0 });
     }
     if (intersect.name === "cubeRed") {
@@ -175,7 +195,10 @@ function onPointerDown(event) {
     if (intersect.name === "cubeDarkMagenta") {
       tweenJS({ x: -1400, y: 150, z: 2000 });
     }
-    controls.update();
+    if (intersect.name === "cylinder") {
+      tweenJS({ x: -2800, y: 150, z: -300 });
+      changeVisible("ARR", false);
+    }
   }
   render();
 }

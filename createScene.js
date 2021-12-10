@@ -2,6 +2,6 @@ import * as THREE from "https://threejsfundamentals.org/threejs/resources/threej
 
 export default function createScene() {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("lightyellow");
+  scene.background = new THREE.Color("blue");
   return scene;
 }
