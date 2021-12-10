@@ -11,8 +11,6 @@ import resizeRendererToDisplaySize from "./resizeRendererToDisplaySize.js";
 
 let cameraPositionCopy;
 let max;
-let parameters;
-const materials = [];
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -24,69 +22,9 @@ createLight(scene);
 const axesHelper = new THREE.AxesHelper(500);
 scene.add(axesHelper);
 
-const geometry = new THREE.BufferGeometry();
-const vertices = [];
-const textureLoader = new THREE.TextureLoader();
-const sprite1 = textureLoader.load("sprites/snowflake1.png");
-const sprite2 = textureLoader.load("sprites/snowflake2.png");
-const sprite3 = textureLoader.load("sprites/snowflake3.png");
-const sprite4 = textureLoader.load("sprites/snowflake4.png");
-const sprite5 = textureLoader.load("sprites/snowflake5.png");
-for (let i = 0; i < 50000; i++) {
-  const x = Math.random() * 5000 - 1000;
-  const y = Math.random() * 5000 - 1000;
-  const z = Math.random() * 5000 - 1000;
-  vertices.push(x, y, z);
-}
-geometry.setAttribute(
-  "position",
-  new THREE.Float32BufferAttribute(vertices, 3)
-);
-console.log("====================================");
-console.log(geometry);
-console.log("====================================");
-parameters = [
-  [[1.0, 0.2, 0.5], sprite2, 20],
-  [[0.95, 0.1, 0.5], sprite3, 15],
-  [[0.9, 0.05, 0.5], sprite1, 10],
-  [[0.85, 0, 0.5], sprite5, 8],
-  [[0.8, 0, 0.5], sprite4, 5],
-];
-for (let i = 0; i < parameters.length; i++) {
-  const color = parameters[i][0];
-  const sprite = parameters[i][1];
-  const size = parameters[i][2];
-  materials[i] = new THREE.PointsMaterial({
-    size: size,
-    map: sprite,
-    blending: THREE.AdditiveBlending,
-    depthTest: false,
-    transparent: true,
-  });
-  materials[i].color.setHSL(color[0], color[1], color[2]);
-  const particles = new THREE.Points(geometry, materials[i]);
-  particles.rotation.x = Math.random() * 6;
-  particles.rotation.y = Math.random() * 6;
-  particles.rotation.z = Math.random() * 6;
-  scene.add(particles);
-}
-
 render();
 
 function render(time) {
-  const timeForSnow = Date.now() * 0.00005;
-
-  for (let i = 0; i < scene.children.length; i++) {
-    const object = scene.children[i];
-    if (object instanceof THREE.Points) {
-      object.rotation.y = timeForSnow * (i < 4 ? i + 1 : -(i + 1));
-    }
-  }
-  for (let i = 0; i < materials.length; i++) {
-    const color = parameters[i][0];
-    const h = ((360 * (color[0] + timeForSnow)) % 360) / 360;
-    materials[i].color.setHSL(h, color[1], color[2]);
-  }
   if (resizeRendererToDisplaySize(renderer)) {
     const canvas = renderer.domElement;
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
