@@ -1,6 +1,5 @@
 import { GLTFLoader } from "https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/loaders/GLTFLoader.js";
 import createCube from "./createCube.js";
-import createPolyhedron from "./createPolyhedron.js";
 
 let cubeGreen;
 let cubeLightGreen;
@@ -80,7 +79,6 @@ export default function gltfLoader(scene, controls) {
       z: 20,
       name: "cubeDarkMagenta",
     });
-    const mesh = createPolyhedron();
 
     gltf.scene.add(
       cubeGreen,
@@ -88,8 +86,7 @@ export default function gltfLoader(scene, controls) {
       cubeRed,
       cubeBlue,
       cubeLightGreen,
-      cubeDarkMagenta,
-      mesh
+      cubeDarkMagenta
     );
     objects.push(
       cubeGreen,
