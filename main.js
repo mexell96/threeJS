@@ -27,6 +27,7 @@ createLight(scene);
 const axesHelper = new THREE.AxesHelper(500);
 scene.add(axesHelper);
 
+const container = document.getElementById("container");
 render();
 
 function render(time) {
@@ -91,8 +92,14 @@ function tweenJS(coordinates) {
     // revert to original rotation
     camera.quaternion.copy(startRotation);
     return new TWEEN.Tween(camera.quaternion)
+      .to(endRotation, max)
       .easing(TWEEN.Easing.Quartic.Out)
-      .to(endRotation, max);
+      .onStart(() => {
+        container.classList.add("disabledContainer");
+      })
+      .onComplete((obj) => {
+        container.classList.remove("disabledContainer");
+      });
   }
 
   let tweenLook = tweenLookAt();
@@ -169,36 +176,37 @@ function onPointerDown(event) {
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(objects, false);
   console.log("intersects", intersects);
-  if (intersects.length > 0) {
-    const intersect = intersects[0].object;
-    if (intersect.name === "cubeGreen") {
-      createRequest();
-      tweenJS({ x: 1600, y: 150, z: 0 });
-      changeVisible("ARR", true);
-    }
-    if (intersect.name === "cubeYellow") {
-      tweenJS({ x: -1400, y: 150, z: 0 });
-      changeVisible("ARR", false);
-    }
-    if (intersect.name === "arrow1" && intersect.visible === true) {
-      tweenJS({ x: 0, y: 150, z: 0 });
-    }
-    if (intersect.name === "cubeRed") {
-      tweenJS({ x: -1400, y: 150, z: -1000 });
-    }
-    if (intersect.name === "cubeBlue") {
-      tweenJS({ x: -1400, y: 150, z: 1000 });
-    }
-    if (intersect.name === "cubeDarkGreen") {
-      tweenJS({ x: -5500, y: 150, z: 200 });
-    }
-    if (intersect.name === "cubeDarkMagenta") {
-      tweenJS({ x: -1400, y: 150, z: 2000 });
-    }
-    if (intersect.name === "cylinder") {
-      tweenJS({ x: -2800, y: 150, z: -300 });
-      changeVisible("ARR", false);
+  if (!container.classList.contains("disabledContainer")) {
+    if (intersects.length > 0) {
+      const intersect = intersects[0].object;
+      if (intersect.name === "cubeGreen") {
+        createRequest();
+        tweenJS({ x: 1600, y: 150, z: 0 });
+        changeVisible("ARR", true);
+      }
+      if (intersect.name === "cubeYellow") {
+        tweenJS({ x: -1400, y: 150, z: 0 });
+        changeVisible("ARR", false);
+      }
+      if (intersect.name === "arrow1" && intersect.visible === true) {
+        tweenJS({ x: 0, y: 150, z: 0 });
+      }
+      if (intersect.name === "cubeRed") {
+        tweenJS({ x: -1400, y: 150, z: -1000 });
+      }
+      if (intersect.name === "cubeBlue") {
+        tweenJS({ x: -1400, y: 150, z: 1000 });
+      }
+      if (intersect.name === "cubeDarkGreen") {
+        tweenJS({ x: -5500, y: 150, z: 200 });
+      }
+      if (intersect.name === "cubeDarkMagenta") {
+        tweenJS({ x: -1400, y: 150, z: 2000 });
+      }
+      if (intersect.name === "cylinder") {
+        tweenJS({ x: -2800, y: 150, z: -300 });
+        changeVisible("ARR", false);
+      }
     }
   }
-  render();
 }
